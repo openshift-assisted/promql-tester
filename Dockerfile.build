@@ -1,0 +1,7 @@
+FROM quay.io/centos/centos:stream8
+
+RUN dnf update -y && dnf install -y python3 python3-pip make && dnf clean all && python3 -m pip install --upgrade pip
+
+COPY requirements.txt requirements-dev.txt ./
+
+RUN python3 -m pip install -I --no-cache-dir -r requirements.txt -r requirements-dev.txt

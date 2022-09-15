@@ -1,0 +1,7 @@
+conditions:
+- expression: rate(kube_pod_container_status_restarts_total{namespace="my-namespace"}[10m])
+  for_seconds: 300
+  interval_seconds: 30
+  threshold:
+    upper: 0
+    lower: 0

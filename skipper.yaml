@@ -1,0 +1,5 @@
+registry: quay.io
+build_container_image: build
+
+containers:
+  promql-tester-build: Dockerfile.build

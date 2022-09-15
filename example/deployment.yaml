@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: promql-tester
+  labels:
+    app: promql-tester
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: promql-tester
+  template:
+    metadata:
+      labels:
+        app: promql-tester
+    spec:
+      containers:
+      - name: promql-tester
+        image: quay.io/edge-infrastructure/promql-tester:latest
+        imagePullPolicy: Always
+        env:
+        - name: PROMETHEUS_URL
+          value: "http://localhost:9090"
+        - name: CONDITIONS_PATH
+          value: "/etc/config/conditions.yaml"
+        command:
+        - "promql_tester"
+        volumeMounts:
+        - name: conditions-config
+          mountPath: /etc/config/
+      volumes:
+      - name: conditions-config
+        configMap:
+          name: conditions-cfg
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: conditions-cfg
+data:
+  conditions.yaml: |
+    conditions:
+    - expression: 'sum(increase(elasticsearch_indices_shards_docs{primary="true",index=~"assisted-service-events-v3.*"}[5m])) - sum(increase(elasticsearch_indices_shards_docs{primary="true",index=~"assisted-service-events-v3.*"}[5m] offset 5m))'
+      for_seconds: 300
+      interval_seconds: 30
+      threshold:
+        upper: 10
+        lower: -10
